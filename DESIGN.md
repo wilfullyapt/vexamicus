@@ -95,4 +95,12 @@ Unknown `v` → reject. amini will speak this schema later; phase 0 only encodes
 
 1. Freeze link schema + lose-target / e-stop behaviors in longer sims  
 2. Body computer bring-up + IMU  
-3. Measured bench hop with arming discipline  
+3. Measured bench hop with arming discipline
+
+## CAD (OpenSCAD)
+
+Parametric T0/T1 kit under `cad/` (commit `1392e75`+). See `cad/README.md`.
+
+- **T1 leg:** 4-bar + latex torsion SEA hub (power-modulation *path*; not Salto 8-bar clone)
+- **Attitude:** reaction wheel + optional thruster booms
+- Research write-up: estate Reliquary `research/vexamicus-salto-hardware-design.md`
