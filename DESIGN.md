@@ -1,106 +1,72 @@
 # Vexamicus — DESIGN
 
-**Product:** Salto-class monoped companion body  
-**Phase:** 0 — contracts + sim  
-**Version:** 0.1.0  
-**Brain/remote:** mobile-ami (`amini`) — separate repo  
+**Product:** One-leg Salto-class hopper (monoped only)  
+**Phase:** 0 software sim + **T1 hardware BOM locked**  
+**Version:** 0.1.0 + docs BOM 1.0  
+**Brain/remote:** mobile-ami (`amini`) — separate repo · **after** hop/balance  
 **Hub Hermes profile:** none  
-**Visibility:** public MIT
+**Visibility:** public MIT  
 
 ## Thesis
 
-Body ≠ brain. Vexamicus owns hop control, on-body safety, and MotionBus backends.  
-mobile-ami owns voice, high-level dog UX, and the link **client**.
+Body ≠ brain. Vexamicus owns hop control, on-body safety, MotionBus, and (T1) physical monoped.  
+mobile-ami owns later voice / who-may UX and link client.
 
-North-star program (phased gates, not one PR):
+### Goal order (locked)
 
-| Lane | Meaning |
-|------|---------|
-| L1 Jump | Hop / aerial attitude |
-| L2 Follow | Owner envelope while/between hops |
-| L3 Dog cmds | sit / stay / come / heel / jump / stop / free / orbit |
+1. Hardware BOM — see [`docs/BOM.md`](docs/BOM.md)  
+2. Mechanical build — [`cad/`](cad/)  
+3. Stand / hop / balance (G1–G4)  
+4. Later software: follow, dog voice, sit-places, cam+2 mics  
 
 ## MotionBus
-
-Abstract actuator surface:
 
 - `set_leg_extension(ratio 0..1)`
 - `set_reaction_wheel_torque(nm)` (sim units)
 - `estop()`
 - `read_state() → MotionState`
 
-**SimMotionBus** is the default CI/desk backend.  
-**HwMotionBus** exists as a refuse-stub until real drivers land; construction requires `allow_hw=True` and still starts **disarmed**.
+**SimMotionBus** — default CI.  
+**HwMotionBus** — refuse-stub until real drivers; needs `allow_hw=True` + armed.
 
-## Hop controller (sim)
+## Hardware (T1)
 
-Phase-0 hop is a **planar energy toy**, not a validated plant model:
+| Role | Pick |
+|------|------|
+| Hop MCU | Teensy 4.1 |
+| Modem | ESP32-S3 |
+| IMU | ICM-42688-P (LSM6DSOX alt) |
+| Leg | BLDC 2205 + ~25:1 + latex SEA + 4-bar |
+| Pitch | Reaction wheel |
+| Power | 2S 350–500 mAh |
 
-1. Stance compresses a virtual spring.  
-2. Extension releases impulse → vertical velocity.  
-3. Flight integrates under gravity until touchdown.  
-4. Metrics: peak height (m), flight time (s), hop count.
+Buy links + CAD mapping: **`docs/BOM.md`**.
 
-Inspired by published monoped hopping control ideas (series-elastic stance, aerial attitude). **Not** a copy of Berkeley CAD/firmware.
+## CAD
 
-## Dog FSM
+Parametric kit under `cad/` — index in `docs/MODELS.md`.
 
-Modes: `stop`, `sit`, `stay`, `come`, `heel`, `jump`, `orbit`, `free`.
+- T1 leg: 4-bar + latex torsion SEA (not a Salto 8-bar clone)  
+- Attitude: reaction wheel; thruster booms optional after G3  
 
-- Illegal transitions rejected with reason.  
-- `jump` queues a single hop request on the hop controller when armed **or** always allowed in pure sim tick path via `force_sim`.  
-- `stop` / e-stop clears motion commands.
+## Dog FSM / link v1
 
-## Motion link schema v1
-
-JSON lines (UTF-8), one object per message.
-
-**Brain → body (`cmd`):**
-
-```json
-{"v":1,"kind":"cmd","id":"…","mode":"heel","hop":false,"estop":false}
-```
-
-**Body → brain (`tel`):**
-
-```json
-{"v":1,"kind":"tel","mode":"heel","armed":false,"phase":"flight","height_m":0.12,"hop_count":3}
-```
-
-Unknown `v` → reject. amini will speak this schema later; phase 0 only encodes/decodes here.
+Modes and JSON link schema remain for **later** amini integration; hop firmware path is Teensy-first.
 
 ## Safety
 
-| Rule | Behavior |
-|------|----------|
-| Default | `armed=false` |
-| Real hw path | Refuse if not armed |
-| E-stop | Immediate zero commands; mode → `stop` |
-| CI | Never imports hardware SDKs |
+Default `armed=false`. CI never loads motor SDKs. Bench tether required until G4.
 
-## Non-goals (phase 0)
+## Non-goals (near term)
 
-- Real BOM / ASSEMBLY parts list (open until MCU vs SBC lock)  
-- ROS2 runtime  
-- Vision person-follow weights  
-- Claiming Salto agility numbers  
+- Wheeled chassis  
+- Cam/mics populated before G4  
+- Voice/follow software before balance  
+- Pi on body  
+- Claiming Salto leap meters day one  
 
-## References (public)
+## References
 
-- UC Berkeley Biomimetic Millisystems Lab — Salto / Salto-1P hopping robots (public papers and EECS writeups)  
+- Haldane / Yim / Fearing Salto-1P papers  
+- Plecnik SE+MA leg design paper  
 - robotsguide.com/robots/salto  
-- Estate research: Salto FB reel intake (video id 4200211160111461)
-
-## Next phases
-
-1. Freeze link schema + lose-target / e-stop behaviors in longer sims  
-2. Body computer bring-up + IMU  
-3. Measured bench hop with arming discipline
-
-## CAD (OpenSCAD)
-
-Parametric T0/T1 kit under `cad/` (commit `1392e75`+). See `cad/README.md`.
-
-- **T1 leg:** 4-bar + latex torsion SEA hub (power-modulation *path*; not Salto 8-bar clone)
-- **Attitude:** reaction wheel + optional thruster booms
-- Research write-up: estate Reliquary `research/vexamicus-salto-hardware-design.md`

@@ -1,49 +1,55 @@
 # Vexamicus CAD (OpenSCAD)
 
-Parametric **T0/T1** monoped kit. Geometry is **original** estate design inspired by published Salto-class proportions — not a Berkeley CAD replica.
+Parametric **T1 hop-core** monoped kit. Original geometry (Salto-class proportions, not a Berkeley replica).
+
+**BOM + buy links:** [docs/BOM.md](../docs/BOM.md)  
+**Model index:** [docs/MODELS.md](../docs/MODELS.md)  
+**GitHub tree:** https://github.com/wilfullyapt/vexamicus/tree/main/cad
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `params.scad` | Global mm parameters / SCALE |
-| `vitamins.scad` | Shared holes, pockets |
-| `parts/*.scad` | Printable parts (each file ends with the part for STL export) |
-| `assembly.scad` | Full preview pose |
-| `export/` | Generated STL / PNG |
+| `params.scad` | Global mm / SCALE |
+| `vitamins.scad` | Holes, pockets |
+| `parts/*.scad` | Printable parts (file invokes the part for STL export) |
+| `assembly.scad` | Full preview |
+| `export/` | Local STL/PNG (gitignored; regenerate) |
 
-## Parts
+## Parts ↔ BOM
 
-- `body_core` — battery bay, MCU shelf, hip bearings, tail bore  
-- `sea_hub` — latex torsion SEA + crank  
-- `femur`, `shin`, `coupler` — T1 4-bar leg links  
-- `foot_toe` — rubber seat + crouch ankle pads  
-- `tail_wheel` — reaction wheel with brass-insert pockets  
-- `thruster_boom` — optional T2 roll/yaw mounts  
+| Part | File | GitHub |
+|------|------|--------|
+| Body | `parts/body_core.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/body_core.scad) |
+| SEA hub | `parts/sea_hub.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/sea_hub.scad) |
+| Femur | `parts/femur.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/femur.scad) |
+| Shin | `parts/shin.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/shin.scad) |
+| Coupler | `parts/coupler.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/coupler.scad) |
+| Foot | `parts/foot_toe.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/foot_toe.scad) |
+| Tail wheel | `parts/tail_wheel.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/tail_wheel.scad) |
+| Thruster boom (later) | `parts/thruster_boom.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/parts/thruster_boom.scad) |
+| Assembly | `assembly.scad` | [link](https://github.com/wilfullyapt/vexamicus/blob/main/cad/assembly.scad) |
 
 ## Export
 
 ```bash
 cd cad
-# preview PNG
 openscad -o export/assembly.png --imgsize=1280,800 \
   --camera=200,180,120,0,0,0,450 assembly.scad
-
-# STLs
 for p in body_core sea_hub femur shin coupler foot_toe tail_wheel thruster_boom; do
   openscad -o export/${p}.stl parts/${p}.scad
 done
 ```
 
-## Print notes (starting point)
+## Print notes
 
-- Material: PETG or ABS-CF for structure; wheel can be PETG + brass inserts  
-- Layer 0.2 mm, 4–6 walls, 40–60% gyroid on links  
-- SEA hub: solid-ish (80%+) around spring slots  
-- Post: M3 bolts, 623 bearings at hip, heat-set inserts where marked  
+- PETG (default) or ABS-CF  
+- 0.2 mm layers, 4–6 walls, 40–60% gyroid on links  
+- SEA hub denser (≈80%+)  
+- M3 + 623 bearings at hip; brass inserts on tail wheel  
 
-## Next CAD
+## Next CAD (after motor/gearbox in hand)
 
-- Exploded BOM annotations  
-- Exact gearbox adapter once motor is purchased  
-- T3 multi-bar MA leg (separate module) after T1 hops  
+- `parts/motor_plate_leg.scad` — real bolt pattern  
+- `parts/spring_cage.scad`  
+- `parts/encoder_mount.scad`  

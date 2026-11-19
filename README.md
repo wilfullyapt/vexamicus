@@ -1,46 +1,57 @@
 # Vexamicus
 
-**Salto-class monoped body runtime** — sim-first MotionBus, hop cycle, dog mode FSM.  
-Handheld brain/remote is **[mobile-ami](https://github.com/wilfullyapt/mobile-ami)** (`amini`), not this tree.
+**One-leg Salto-class hopper** — public MIT. **Not wheeled.**  
+Later brain/remote: [mobile-ami](https://github.com/wilfullyapt/mobile-ami) (`amini`).
 
-**Phase 0 (this release):** installable package + tests + CLI. **No real motors.** Hardware backends stay unarmed stubs.
+## Hop-first lock (Wil 2026-11-19)
 
-## Quick start
+1. **Hardware BOM** (buy links)  
+2. **Mechanical build** (OpenSCAD)  
+3. **Stand / hop / balance**  
+4. **Later:** voice, who-may, vision follow, sit-places  
+
+### Start here
+
+| Doc | What |
+|-----|------|
+| **[docs/BOM.md](docs/BOM.md)** | **Locked BOM + buy links + CAD model links** |
+| [docs/MODELS.md](docs/MODELS.md) | OpenSCAD → part map |
+| [docs/HOP_FIRST.md](docs/HOP_FIRST.md) | Goal order |
+| [docs/HARDWARE_T1.md](docs/HARDWARE_T1.md) | Short hardware card |
+| [DESIGN.md](DESIGN.md) | MotionBus / software architecture |
+| [cad/](cad/) | Printable OpenSCAD kit |
+
+**CAD on GitHub:** https://github.com/wilfullyapt/vexamicus/tree/main/cad
+
+## Software sim (phase 0 — already shipped)
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ruff check src tests && pytest -q
 vexamicus version
-vexamicus sim tick --steps 20
+vexamicus sim jumps --count 3
 vexamicus dog set heel
-vexamicus dog status
 ```
 
-## What ships / what does not
+## Print CAD
 
-| Ships in 0.1.0 | Does not ship yet |
-|----------------|-------------------|
-| `MotionBus` + **sim** backend | Real leg / reaction-wheel drivers |
-| Sim hop metrics (height, flight time) | Measured outdoor agility |
-| Dog modes + FSM | Live voice (lives on amini) |
-| Motion-link JSON schema v1 | Chosen radio/serial bring-up |
-| Safety arm flag (default **disarmed**) | BOM / printed chassis |
+```bash
+cd cad
+for p in body_core sea_hub femur shin coupler foot_toe tail_wheel; do
+  openscad -o "export/${p}.stl" "parts/${p}.scad"
+done
+openscad -o export/assembly.stl assembly.scad
+```
 
 ## Architecture
 
 ```
-amini (brain)  --Motion link v1-->  Vexamicus (body)
-                                    MotionBus → sim | hw*
+amini (later brain)  --link-->  Teensy 4.1 hop loop + ESP32 modem
+                                MotionBus → sim | hw
 ```
-
-\*hw refuses torque unless `armed: true` in config.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).  
-Inspired by **public** UC Berkeley Salto / Salto-1P literature; **no** Berkeley affiliation or CAD.
-
-## Estate
-
-Vault map: Reliquary `domains/shipyard/maps/vexamicus.md` · ADR 0012.
+MIT — [LICENSE](LICENSE).  
+Inspired by public UC Berkeley Salto / Salto-1P literature; **no** affiliation or copied CAD.
