@@ -11,3 +11,5 @@ htmlcov/
 .DS_Store
 config.yaml
 *.log
+cad/export/*.stl
+cad/export/*.png
